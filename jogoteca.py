@@ -13,13 +13,16 @@ jogo2 = Jogo('Pokemon Gold', 'RPG', 'GBA')
 jogo3 = Jogo('Commandos', 'Ação', 'PC')
 lista = [jogo1, jogo2, jogo3]
 
+
 @app.route('/')
 def index():
     return render_template('lista.html', titulo='Jogos', jogos=lista)
 
+
 @app.route('/novo')
 def novo():
     return render_template('novo.html', titulo='Novo Jogo')
+
 
 @app.route('/criar', methods=['POST',])
 def criar():
@@ -30,4 +33,16 @@ def criar():
     lista.append(jogo)
     return redirect('/')
 
+
+@app.route('/login')
+def login():
+    return render_template('login.html')
+
+
+@app.route('/autenticar', methods=['POST',])
+def autenticar():
+    if 'mestra' == request.form['senha']:
+        return redirect('/')
+    else:
+        return redirect('/login')
 app.run(debug=True)
