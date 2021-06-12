@@ -8,6 +8,10 @@ conexao = mysql.connector.connect(
     auth_plugin='mysql_native_password'
 )
 
+# Descomente se quiser desfazer o banco...
+# conexao.cursor().execute("DROP DATABASE `jogoteca`;")
+# conexao.commit()
+
 cursor = conexao.cursor()
 
 cursor.execute('create database if not exists jogoteca')
@@ -32,9 +36,9 @@ cursor.execute("""create table if not exists usuario (
 cursor.executemany(
     'INSERT INTO jogoteca.usuario (id, nome, senha) VALUES (%s, %s, %s)',
     [
-        ('luan', 'Luan Marques', 'flask'),
-        ('nico', 'Nico', '7a1'),
-        ('danilo', 'Danilo', 'vegas')
+        ('Jose', 'Jose Marques', 'flask'),
+        ('nicole', 'Nicole', '7a1'),
+        ('danillo', 'Danillo', 'vegas')
     ])
 
 cursor.execute('select * from jogoteca.usuario')

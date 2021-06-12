@@ -1,17 +1,19 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for
 from models import Jogo, Usuario
 from dao import JogoDao
-from flask_mysqldb import MySQL
+import mysql.connector
 
 
 app = Flask(__name__)
 app.secret_key = 'upsites'
-app.config['MYSQL_HOST'] = '0.0.0.0'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = 'casa45220313'
-app.config['MYSQL_DB'] = 'jogoteca'
-app.config['MYSQL_PORT'] = 3306
-db = MySQL(app)
+db = mysql.connector.connect(
+    host="127.0.0.1",
+    user="root",
+    port=3306,
+    password="casa45220913",
+    database="jogoteca",
+    auth_plugin='mysql_native_password'
+)
 
 jogo_dao = JogoDao(db)
 
@@ -24,14 +26,9 @@ usuarios = {usuario1.id: usuario1,
           usuario3.id: usuario3}
 
 
-jogo1 = Jogo('Super Mario', 'Ação', 'SNES')
-jogo2 = Jogo('Pokemon Gold', 'RPG', 'GBA')
-jogo3 = Jogo('Commandos', 'Ação', 'PC')
-lista = [jogo1, jogo2, jogo3]
-
-
 @app.route('/')
 def index():
+    lista = jogo_dao.listar()
     return render_template('lista.html', titulo='Jogos', jogos=lista)
 
 
