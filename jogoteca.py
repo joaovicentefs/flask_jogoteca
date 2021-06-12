@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, redirect, session, flash, url_for
 from models import Jogo, Usuario
-from dao import JogoDao
+from dao import JogoDao, UsuarioDao
 import mysql.connector
 
 
@@ -16,14 +16,7 @@ db = mysql.connector.connect(
 )
 
 jogo_dao = JogoDao(db)
-
-usuario1 = Usuario('joao', 'João Vicente', '1234')
-usuario2 = Usuario('nico', 'Nico Steppat', '7a1')
-usuario3 = Usuario('flavio', 'Flávio', 'javascript')
-
-usuarios = {usuario1.id: usuario1,
-          usuario2.id: usuario2,
-          usuario3.id: usuario3}
+usuario_dao = UsuarioDao(db)
 
 
 @app.route('/')
@@ -57,8 +50,8 @@ def login():
 
 @app.route('/autenticar', methods=['POST',])
 def autenticar():
-    if request.form['usuario'] in usuarios:
-        usuario = usuarios[request.form['usuario']]
+    usuario = usuario_dao.busca_por_id(request.form['usuario'])
+    if usuario:
         if usuario.senha == request.form['senha']:
             session['usuario_logado'] = usuario.id
             flash(usuario.nome + ' logou com sucesso!')
