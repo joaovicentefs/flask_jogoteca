@@ -39,6 +39,8 @@ def criar():
     console = request.form['console']
     jogo = Jogo(nome, categoria, console)
     jogo_dao.salvar(jogo)
+    arquivo = request.files['arquivo']
+    arquivo.save(f'uploads/{arquivo.filename}')
     return redirect(url_for('index'))
 
 
@@ -52,7 +54,19 @@ def editar(id):
 
 @app.route('/atualizar', methods=['POST',])
 def atualizar():
-    pass
+    nome = request.form['nome']
+    categoria = request.form['categoria']
+    console = request.form['console']
+    jogo = Jogo(nome, categoria, console, id=request.form['id'])
+    jogo_dao.salvar(jogo)
+    return redirect(url_for('index'))
+
+@app.route('/deletar/<int:id>')
+def deletar(id):
+    jogo = jogo_dao.buscar_por_id(id)
+    jogo_dao.deletar(id)
+    flash( jogo.nome + ' foi deletado')
+    return redirect(url_for('index'))
 
 
 @app.route('/login')
