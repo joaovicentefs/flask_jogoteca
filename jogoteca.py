@@ -3,6 +3,7 @@ from models import Jogo, Usuario
 from dao import JogoDao, UsuarioDao
 import mysql.connector
 import os
+import time
 
 
 app = Flask(__name__)
@@ -42,8 +43,9 @@ def criar():
     jogo = Jogo(nome, categoria, console)
     jogo = jogo_dao.salvar(jogo)
     arquivo = request.files['arquivo']
+    timestamp = time.time()
     upload_path = app.config['UPLOAD_PATH']
-    arquivo.save(f'{upload_path}/capa{jogo.id}.jpg')
+    arquivo.save(f'{upload_path}/capa{jogo.id}-{timestamp}.jpg')
     return redirect(url_for('index'))
 
 
@@ -52,7 +54,8 @@ def editar(id):
     if 'usuario_logado' not in session or session['usuario_logado'] == None:
         return redirect(url_for('login', proxima=url_for('editar')))
     jogo = jogo_dao.buscar_por_id(id)
-    return render_template('editar.html', titulo='Editando Jogo', jogo=jogo, capa_jogo=f'capa{id}.jpg')
+    nome_imagem = recupera_imagem(id)
+    return render_template('editar.html', titulo='Editando Jogo', jogo=jogo, capa_jogo=nome_imagem)
 
 
 @app.route('/atualizar', methods=['POST',])
@@ -62,6 +65,11 @@ def atualizar():
     console = request.form['console']
     jogo = Jogo(nome, categoria, console, id=request.form['id'])
     jogo_dao.salvar(jogo)
+    arquivo = request.files['arquivo']
+    upload_path = app.config['UPLOAD_PATH']
+    timestamp = time.time()
+    deleta_arquivo(jogo.id)
+    arquivo.save(f'{upload_path}/capa{jogo.id}-{timestamp}.jpg')
     return redirect(url_for('index'))
 
 @app.route('/deletar/<int:id>')
@@ -101,5 +109,13 @@ def logout():
 def imagem(nome_arquivo):
     return send_from_directory('uploads', nome_arquivo)
 
+def recupera_imagem(id):
+    for nome_arquivo in os.listdir(app.config['UPLOAD_PATH']):
+        if f'capa{id}' in nome_arquivo:
+            return nome_arquivo
+
+def deleta_arquivo(id):
+    arquivo = recupera_imagem(id)
+    os.remove(os.path.join(app.config['UPLOAD_PATH'], arquivo))
 
 app.run(debug=True)
